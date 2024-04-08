@@ -42,6 +42,7 @@
     const buttonDeleteElement = document.querySelector(".delete-form-button");
     const textDisabled = document.querySelector(".text");
     // const addCommentElement = document.querySelector("add-comment");
+    // const addFormDisable = document.querySelector(".add-form");
 
     const fetchGetCommentsData = () => {
       let fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments")
@@ -57,13 +58,14 @@
             dateTime: comment.date,
             text: comment.text,
             likes: comment.likes,
-            liked: comment.isLiked
+            liked: comment.isLiked,
           }));
           textDisabled.textContent = "";
           renderComments();
         })
-        .catch(error => {
-          console.error('Ошибка при загрузке комментариев:', error);
+        .catch((error) => {
+          alert("Кажется что-то пошло не так, попробуйте похже.");
+          console.warn(error);
         });
     };
 
@@ -169,7 +171,7 @@
     fetchGetCommentsData();
     renderComments(commentsData);
 
-    addButton.addEventListener("click", function () {
+    addButton.addEventListener("click", () => {
       const nameValue = nameInput.value.trim();
       const commentValue = commentInput.value.trim();
 
@@ -188,7 +190,7 @@
 
       addButton.disabled = true;
       addButton.textContent = "Комментарий добавляется";
-      // addComment();
+
       fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments", {
         method: "POST",
         body: JSON.stringify({
@@ -197,6 +199,7 @@
           date: getCurrentDateTime(new Date),
           isLiked: false,
           likes: 0,
+          forceError: false,
         })
       })
         .then((response) => {
@@ -208,19 +211,15 @@
         .then(() => {
           addButton.disabled = false;
           addButton.textContent = "Написать";
-          // addCommentElement.innerHTML = oldAddFormElement.innerHTML;
-        })
-        .catch(error => {
-          console.error('Ошибка при загрузке комментариев:', error);
+          nameInput.value = "";
+          commentInput.value = "";
         });
-
 
 
       commentsData.push(newComment);
       renderComments(commentsData);
 
-      nameInput.value = "";
-      commentInput.value = "";
+
     });
 
 
