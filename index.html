@@ -175,6 +175,14 @@
       const nameValue = nameInput.value.trim();
       const commentValue = commentInput.value.trim();
 
+      if (nameInput.value === "" || nameInput.value === null || nameInput.value.length < 3) {
+        nameInput.classList.add('error');
+        return;
+      } else if (commentInput.value === "" || commentInput.value === null || commentInput.value.length < 3) {
+        commentInput.classList.add('error');
+        return;
+      }
+
       if (nameValue === "" || commentValue === "") {
         alert("Пожалуйста, введите ваше имя и комментарий!");
         return;
@@ -203,7 +211,28 @@
         })
       })
         .then((response) => {
+          if (response.status === 500) {
+            throw new Error('Сервер сломался, попробуй позже');
+            addButton.disabled = true;
+          }
           return response.json();
+        })
+        .catch((error) => {
+          addButton.disabled = false;
+          addButton.textContent = "Написать";
+          alert('Сервер сломался, попробуй позже');
+        })
+        .then((response) => {
+          if (response.status === 400) {
+            throw new Error('Имя и комментарий должны быть не короче 3 символов');
+            addButton.disabled = true;
+          }
+          return response.json();
+        })
+        .catch((error) => {
+          addButton.disabled = false;
+          addButton.textContent = "Написать";
+          alert('Имя и комментарий должны быть не короче 3 символов');
         })
         .then((response) => {
           fetchGetCommentsData();
@@ -213,6 +242,11 @@
           addButton.textContent = "Написать";
           nameInput.value = "";
           commentInput.value = "";
+        })
+        .catch((error) => {
+          addButton.disabled = true;
+          addButton.textContent = "Написать";
+          alert('Кажется что-то пошло не так, попробуйте позже.');
         });
 
 
