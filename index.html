@@ -171,49 +171,7 @@
     fetchGetCommentsData();
     renderComments(commentsData);
 
-    addButton.addEventListener("click", () => {
-      const nameValue = nameInput.value.trim();
-      const commentValue = commentInput.value.trim();
-
-      if (nameValue === "" || commentValue === "") {
-        alert("Пожалуйста, введите ваше имя и комментарий!");
-        return;
-      }
-
-      const newComment = {
-        author: escapeHTML(nameValue),
-        dateTime: getCurrentDateTime(),
-        text: escapeHTML(commentValue),
-        likes: 0,
-        liked: false
-      };
-
-      addButton.disabled = true;
-      addButton.textContent = "Комментарий добавляется";
-
-      fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments", {
-        method: "POST",
-        body: JSON.stringify({
-          name: nameInput.value,
-          text: commentInput.value,
-          date: getCurrentDateTime(new Date),
-          isLiked: false,
-          likes: 0,
-          forceError: false,
-        })
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((response) => {
-          fetchGetCommentsData();
-        })
-        .then(() => {
-          addButton.disabled = false;
-          addButton.textContent = "Написать";
-          nameInput.value = "";
-          commentInput.value = "";
-        });
+    
 
 
       commentsData.push(newComment);
