@@ -171,7 +171,83 @@
     fetchGetCommentsData();
     renderComments(commentsData);
 
-    
+    addButton.addEventListener("click", () => {
+      const nameValue = nameInput.value.trim();
+      const commentValue = commentInput.value.trim();
+
+      if (nameValue === "" || commentValue === "") {
+        alert("Пожалуйста, введите ваше имя и комментарий!");
+        return;
+      }
+
+      const newComment = {
+        author: escapeHTML(nameValue),
+        dateTime: getCurrentDateTime(),
+        text: escapeHTML(commentValue),
+        likes: 0,
+        liked: false
+      };
+
+      addButton.disabled = true;
+      addButton.textContent = "Комментарий добавляется";
+
+      fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments", {
+        method: "POST",
+        body: JSON.stringify({
+          name: nameInput.value,
+          text: commentInput.value,
+          date: getCurrentDateTime(new Date),
+          isLiked: false,
+          likes: 0,
+          forceError: false,
+        })
+      })
+        .then((response) => {
+          addButton.disabled = true;
+          addButton.textContent = "Комментарий добавляется";
+          if (response.status === 500) {
+            throw new Error('Сервер сломался, попробуй позже');
+          }
+          return response.json();
+        })
+        .catch((error) => {
+          addButton.disabled = false;
+          addButton.textContent = "Написать";
+          alert('Сервер сломался, попробуй позже');
+        })
+        .then((response) => {
+          addButton.disabled = true;
+          addButton.textContent = "Комментарий добавляется";
+          if (response.status === 400) {
+            throw new Error('Имя и комментарий должны быть не короче 3 символов');
+            // } else if (nameInput.value === "" || nameInput.value === null || nameInput.value.length <= 2) {
+            //   nameInput.classList.add('error');
+            //   return;
+            // } else if (commentInput.value === "" || commentInput.value === null || commentInput.value.length <= 2) {
+            //   commentInput.classList.add('error');
+            //   return;
+          }
+          return response.json();
+        })
+        .catch((error) => {
+          addButton.disabled = false;
+          addButton.textContent = "Написать";
+          alert('Имя и комментарий должны быть не короче 3 символов');
+        })
+        .then((response) => {
+          fetchGetCommentsData();
+        })
+        .then(() => {
+          addButton.disabled = false;
+          addButton.textContent = "Написать";
+          nameInput.value = "";
+          commentInput.value = "";
+        });
+      // .catch((error) => {
+      //   addButton.disabled = false;
+      //   addButton.textContent = "Написать";
+      //   alert('Кажется что-то пошло не так, попробуйте позже.');
+      // })
 
 
       commentsData.push(newComment);
