@@ -69,6 +69,45 @@
         });
     };
 
+    const postFetch = () => {
+      return fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments", {
+        method: "POST",
+        body: JSON.stringify({
+          name: nameInput.value,
+          text: commentInput.value,
+          date: getCurrentDateTime(new Date),
+          isLiked: false,
+          likes: 0,
+          forceError: true,
+        })
+      })
+        .catch((error) => {
+          console.log(error.message);
+          throw new Error("Не удалось сделать запрос");
+        })
+        .then(async (response) => {
+          if (!response.ok) {
+            let error = await response.json();
+            throw new Error(error.error);
+          }
+          return response.json();
+        })
+        .then((response) => {
+          fetchGetCommentsData();
+        })
+        .then(() => {
+          nameInput.value = "";
+          commentInput.value = "";
+        })
+        .catch((error) => {
+          alert(error.message);
+        })
+        .finally(() => {
+          addButton.disabled = false;
+          addButton.textContent = "Написать";
+        });
+    };
+
     // const initDeleteButtonsListeners = () => {
     //   const deleteButtonsElements = documen.querySelectorAll(".delete-form-button");
     //   for (const deleteButtonsElement of deleteButtonsElements) {
@@ -103,35 +142,6 @@
         });
       });
     };
-
-    // function addComment() {
-    // let oldAddFormElement = addCommentElement.innerHTML;
-    // addCommentElement.textContent = "Комментарий добавляется";
-    // fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     name: nameInput.value,
-    //     text: commentInput.value,
-    //     date: getCurrentDateTime(new Date),
-    //     isLiked: false,
-    //     likes: 0,
-    //   })
-    // })
-    //   .then((response) => {
-    //     return response.json();
-    //   })
-    //   .then((response) => {
-    //     fetchGetCommentsData();
-    //   })
-    //   .then(() => {
-    //     addButton.disabled = false;
-    //     addButton.textContent = "Написать";
-    //     addCommentElement.innerHTML = oldAddFormElement;
-    //   })
-    //   .catch(error => {
-    //     console.error('Ошибка при загрузке комментариев:', error);
-    //   });
-    // };
 
     function createCommentElement(comment) {
       const newComment = document.createElement("li");
@@ -171,6 +181,7 @@
     fetchGetCommentsData();
     renderComments(commentsData);
 
+
     addButton.addEventListener("click", () => {
       const nameValue = nameInput.value.trim();
       const commentValue = commentInput.value.trim();
@@ -180,82 +191,12 @@
         return;
       }
 
-      const newComment = {
-        author: escapeHTML(nameValue),
-        dateTime: getCurrentDateTime(),
-        text: escapeHTML(commentValue),
-        likes: 0,
-        liked: false
-      };
-
       addButton.disabled = true;
       addButton.textContent = "Комментарий добавляется";
 
-      fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments", {
-        method: "POST",
-        body: JSON.stringify({
-          name: nameInput.value,
-          text: commentInput.value,
-          date: getCurrentDateTime(new Date),
-          isLiked: false,
-          likes: 0,
-          forceError: false,
-        })
-      })
-        .then((response) => {
-          addButton.disabled = true;
-          addButton.textContent = "Комментарий добавляется";
-          if (response.status === 500) {
-            throw new Error('Сервер сломался, попробуй позже');
-          }
-          return response.json();
-        })
-        .catch((error) => {
-          addButton.disabled = false;
-          addButton.textContent = "Написать";
-          alert('Сервер сломался, попробуй позже');
-        })
-        .then((response) => {
-          addButton.disabled = true;
-          addButton.textContent = "Комментарий добавляется";
-          if (response.status === 400) {
-            throw new Error('Имя и комментарий должны быть не короче 3 символов');
-            // } else if (nameInput.value === "" || nameInput.value === null || nameInput.value.length <= 2) {
-            //   nameInput.classList.add('error');
-            //   return;
-            // } else if (commentInput.value === "" || commentInput.value === null || commentInput.value.length <= 2) {
-            //   commentInput.classList.add('error');
-            //   return;
-          }
-          return response.json();
-        })
-        .catch((error) => {
-          addButton.disabled = false;
-          addButton.textContent = "Написать";
-          alert('Имя и комментарий должны быть не короче 3 символов');
-        })
-        .then((response) => {
-          fetchGetCommentsData();
-        })
-        .then(() => {
-          addButton.disabled = false;
-          addButton.textContent = "Написать";
-          nameInput.value = "";
-          commentInput.value = "";
-        });
-      // .catch((error) => {
-      //   addButton.disabled = false;
-      //   addButton.textContent = "Написать";
-      //   alert('Кажется что-то пошло не так, попробуйте позже.');
-      // })
-
-
-      commentsData.push(newComment);
-      renderComments(commentsData);
-
+      postFetch();
 
     });
-
 
     // const fetchDeleteButton = () => {
     //   fetch("https://wedev-api.sky.pro/api/v1/ilya-krikunenko/comments/" + commentId, {
