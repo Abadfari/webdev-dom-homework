@@ -1,4 +1,6 @@
-import { postFetch } from "../main.js";
+import { postFetch, getToken, fetchGetCommentsData } from "../main.js";
+import { likeComment, deleteComment } from "./api.js";
+
 
 function initReplyListener(commentInput) {
     const commentElements = document.querySelectorAll('.comment');
@@ -18,19 +20,16 @@ export function initCommentListener() {
     initReplyListener(commentInput);
 }
 
-// function initLikeListener() {
-//     const likeButton = newComment.querySelector('.like-button');
-//     likeButton.addEventListener('click', function (event) {
-//         event.stopPropagation();
-//         if (comment.liked) {
-//             comment.likes--;
-//         } else {
-//             comment.likes++;
-//         }
-//         comment.liked = !comment.liked;
-//         renderComments(commentsData);
-//     })
-// };
+export function initLikeListener(newComment) {
+    const likeButton = newComment.querySelector('.like-button');
+    likeButton.addEventListener('click', function (event) {
+        event.stopPropagation();
+        const index = likeButton.dataset.index;
+        likeComment(index, getToken()).then(() => {
+            fetchGetCommentsData();
+        })
+    })
+};
 
 export function initFormListeners() {
     const addButton = document.querySelector(".add-form-button");
@@ -52,3 +51,16 @@ export function initFormListeners() {
 
     });
 }
+
+export const initDeleteButtonsListeners = () => {
+    const deleteButtonsElements = document.querySelectorAll(".delete-form-button");
+    for (const deleteButtonsElement of deleteButtonsElements) {
+        deleteButtonsElement.addEventListener("click", (event) => {
+            event.stopPropagation();
+            const index = deleteButtonsElement.dataset.index;
+            deleteComment(index, getToken()).then(() => {
+                fetchGetCommentsData();
+            });
+        });
+    }
+};
