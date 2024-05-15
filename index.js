@@ -1,4 +1,3 @@
-import { getCurrentDateTime } from "./modules/helper.js";
 import { getComments, postComments } from "./modules/api.js";
 import { renderComments } from "./modules/renderCom.js";
 import { renderMainPage } from "./modules/renderMainPage.js";
@@ -25,7 +24,7 @@ export const fetchGetCommentsData = () => {
         .then((responseData) => {
             commentsData = responseData.comments.map((comment) => ({
                 author: comment.author.name,
-                dateTime: getCurrentDateTime(comment.date),
+                dateTime: comment.date,
                 text: comment.text,
                 likes: comment.likes,
                 liked: comment.isLiked,
@@ -58,7 +57,6 @@ export const postFetch = (nameInput, commentInput, addButton) => {
             alert(error.message);
         })
         .finally(() => {
-            // renderForm.innerHTML = "";
             addButton.disabled = false;
             addButton.textContent = "Написать";
         });

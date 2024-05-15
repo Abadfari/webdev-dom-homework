@@ -5,6 +5,7 @@ import {
     initLikeListener,
 } from "./listeners.js";
 import { escapeHTML } from "./helper.js";
+import { format } from "date-fns";
 
 export function renderComments() {
     const commentsList = document.querySelector(".comments");
@@ -27,7 +28,7 @@ export function createCommentElement(comment) {
     newComment.innerHTML = `
 <div class="comment-header">
   <div>${escapeHTML(comment.author)}</div>
-  <div>${comment.dateTime}</div>
+  <div>${format(new Date(comment.dateTime), "yyyy/MM/dd")}</div>
 </div>
 <div class="comment-body">
   <div class="comment-text">${escapeHTML(comment.text)}</div>
